@@ -1,23 +1,82 @@
-import logo from './logo.svg';
-import './App.css';
+import "./App.css";
+import { useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
+
+import { counterActions } from "./store/counterSlice";
+import { todosActions } from "./store/todoSlice";
+
+import { selectValue } from "./store/counterSlice";
 
 function App() {
+  const dispatch = useDispatch();
+
+  const count = useSelector(selectValue);
+  const todos = useSelector((state) => state.todos.todos);
+
+  const [incrementAmount, setIncrementAmount] = useState("2");
+  const [inputTodo, setInputTodo] = useState("");
+
+  const handleAddTodo = (e) => {
+    e.preventDefault();
+    dispatch(todosActions.addTodo(inputTodo));
+    setInputTodo("");
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
+    <div className="App" style={{ marginTop: "30px" }}>
+      <div>
+        <br />
+        <input
+          name="incrementBy"
+          type="number"
+          value={incrementAmount}
+          style={{ width: "30px" }}
+          onChange={(e) => setIncrementAmount(e.target.value)}
+        />
+        <button
+          type="submit"
+          onClick={() =>
+            dispatch(counterActions.incrementByAmount(Number(incrementAmount)))
+          }
         >
-          Learn React
-        </a>
-      </header>
+          IncrementBy
+        </button>
+      </div>
+      <div>
+        <button onClick={() => dispatch(counterActions.increment())}>+</button>
+        <span>{count}</span>
+        <button onClick={() => dispatch(counterActions.decrement())}>-</button>
+      </div>
+      <br />
+      <div>
+        <form onSubmit={handleAddTodo}>
+          <label htmlFor="todo">Add todo</label>
+          <input
+            type="text"
+            placeholder="Add todo"
+            value={inputTodo}
+            onChange={(e) => {
+              setInputTodo(e.target.value);
+            }}
+          />
+          <button type="submit">Submit</button>
+        </form>
+        <br />
+        {todos.length > 0 && <h3>Todos</h3>}
+        {todos.map((todo) => {
+          return (
+            <div key={todo.id}>
+              <span>{todo.name}</span>
+              <button
+                onClick={() => dispatch(todosActions.deleteTodo(todo.id))}
+              >
+                Delete
+              </button>
+            </div>
+          );
+        })}
+        <br />
+      </div>
     </div>
   );
 }
